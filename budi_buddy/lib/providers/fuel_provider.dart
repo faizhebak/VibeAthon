@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 
+import '../core/local_storage.dart';
 import '../core/mock_data.dart';
 import '../models/fuel_entry.dart';
 
 class FuelProvider extends ChangeNotifier {
-  final List<FuelEntry> _entries = List<FuelEntry>.from(MockData.fuelEntries);
+  static const String _storageKey = 'fuel_entries';
+
+  List<FuelEntry> _entries = [];
   bool _isLoading = false;
+
+  FuelProvider() {
+    _loadEntries();
+  }
+
+  void _loadEntries() {
+    final stored = LocalStorage.getList(_storageKey);
+    if (stored != null) {
+      _entries = stored.map(FuelEntry.fromMap).toList();
+    } else {
+      _entries = List<FuelEntry>.from(MockData.fuelEntries);
+      _persist();
+    }
+  }
+
+  void _persist() {
+    LocalStorage.saveList(
+      _storageKey,
+      _entries.map((e) => e.toMap()).toList(),
+    );
+  }
 
   List<FuelEntry> get allEntries => List.unmodifiable(_entries);
 
@@ -58,6 +82,7 @@ class FuelProvider extends ChangeNotifier {
     final id = 'fe_${DateTime.now().millisecondsSinceEpoch}';
     _entries.add(entry.copyWith(id: id));
     _entries.sort((a, b) => b.date.compareTo(a.date));
+    _persist();
 
     _isLoading = false;
     notifyListeners();
@@ -70,6 +95,7 @@ class FuelProvider extends ChangeNotifier {
     await Future.delayed(const Duration(milliseconds: 400));
 
     _entries.removeWhere((e) => e.id == id);
+    _persist();
 
     _isLoading = false;
     notifyListeners();

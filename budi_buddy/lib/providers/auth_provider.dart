@@ -1,12 +1,35 @@
 import 'package:flutter/material.dart';
 
+import '../core/local_storage.dart';
 import '../core/mock_data.dart';
 import '../models/user_profile.dart';
 
 class AuthProvider extends ChangeNotifier {
+  static const String _userStorageKey = 'current_user';
+  static const String _loggedInStorageKey = 'is_logged_in';
+
   bool _isLoggedIn = false;
   UserProfile? _currentUser;
   bool _isLoading = false;
+
+  AuthProvider() {
+    _restoreSession();
+  }
+
+  void _restoreSession() {
+    final storedUser = LocalStorage.getMap(_userStorageKey);
+    if (storedUser != null) {
+      _currentUser = UserProfile.fromMap(storedUser);
+      _isLoggedIn = LocalStorage.getBool(_loggedInStorageKey) ?? false;
+    }
+  }
+
+  void _persistSession() {
+    if (_currentUser != null) {
+      LocalStorage.saveMap(_userStorageKey, _currentUser!.toMap());
+    }
+    LocalStorage.saveBool(_loggedInStorageKey, _isLoggedIn);
+  }
 
   bool get isLoggedIn => _isLoggedIn;
   UserProfile? get currentUser => _currentUser;
@@ -20,6 +43,7 @@ class AuthProvider extends ChangeNotifier {
 
     _currentUser = MockData.currentUser;
     _isLoggedIn = true;
+    _persistSession();
     _isLoading = false;
     notifyListeners();
   }
@@ -38,6 +62,7 @@ class AuthProvider extends ChangeNotifier {
       monthlyBudget: 300.0,
       avatarInitials: _computeInitials(name),
     );
+    _persistSession();
     _isLoading = false;
     notifyListeners();
   }
@@ -56,6 +81,7 @@ class AuthProvider extends ChangeNotifier {
       monthlyBudget: monthlyBudget,
     );
     _isLoggedIn = true;
+    _persistSession();
     _isLoading = false;
     notifyListeners();
   }
@@ -77,6 +103,7 @@ class AuthProvider extends ChangeNotifier {
       monthlyBudget: monthlyBudget,
       avatarInitials: initials,
     );
+    _persistSession();
     _isLoading = false;
     notifyListeners();
   }
@@ -84,6 +111,8 @@ class AuthProvider extends ChangeNotifier {
   void logout() {
     _isLoggedIn = false;
     _currentUser = null;
+    LocalStorage.remove(_userStorageKey);
+    LocalStorage.saveBool(_loggedInStorageKey, false);
     notifyListeners();
   }
 

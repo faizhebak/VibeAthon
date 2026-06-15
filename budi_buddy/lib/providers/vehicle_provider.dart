@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 
+import '../core/local_storage.dart';
 import '../core/mock_data.dart';
 import '../models/vehicle.dart';
 
 class VehicleProvider extends ChangeNotifier {
-  List<Vehicle> _vehicles = List<Vehicle>.from(MockData.vehicles);
+  static const String _storageKey = 'vehicles';
+
+  List<Vehicle> _vehicles = [];
   bool _isLoading = false;
+
+  VehicleProvider() {
+    _loadVehicles();
+  }
+
+  void _loadVehicles() {
+    final stored = LocalStorage.getList(_storageKey);
+    if (stored != null) {
+      _vehicles = stored.map(Vehicle.fromMap).toList();
+    } else {
+      _vehicles = List<Vehicle>.from(MockData.vehicles);
+      _persist();
+    }
+  }
+
+  void _persist() {
+    LocalStorage.saveList(
+      _storageKey,
+      _vehicles.map((v) => v.toMap()).toList(),
+    );
+  }
 
   List<Vehicle> get vehicles => List.unmodifiable(_vehicles);
 
@@ -27,6 +51,7 @@ class VehicleProvider extends ChangeNotifier {
 
     final id = DateTime.now().millisecondsSinceEpoch.toString();
     _vehicles.add(vehicle.copyWith(id: id));
+    _persist();
 
     _isLoading = false;
     notifyListeners();
@@ -45,6 +70,7 @@ class VehicleProvider extends ChangeNotifier {
       final first = _vehicles.first;
       _vehicles[0] = first.copyWith(isActive: true);
     }
+    _persist();
 
     _isLoading = false;
     notifyListeners();
@@ -59,6 +85,7 @@ class VehicleProvider extends ChangeNotifier {
     _vehicles = _vehicles
         .map((v) => v.copyWith(isActive: v.id == id))
         .toList();
+    _persist();
 
     _isLoading = false;
     notifyListeners();
@@ -73,6 +100,7 @@ class VehicleProvider extends ChangeNotifier {
     final index = _vehicles.indexWhere((v) => v.id == updatedVehicle.id);
     if (index != -1) {
       _vehicles[index] = updatedVehicle;
+      _persist();
     }
 
     _isLoading = false;
