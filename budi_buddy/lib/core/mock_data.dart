@@ -351,6 +351,38 @@ abstract class MockData {
   }
 
   // ---------------------------------------------------------------------
+  // Driving analysis
+  // ---------------------------------------------------------------------
+  static const List<Map<String, String>> drivingTips = [
+    {
+      'icon': 'speed',
+      'title': 'Maintain steady highway speeds',
+      'description':
+          'Cruising at 90 km/h instead of 110 km/h can improve fuel economy by up to 15%.',
+      'saving': 'Save up to 15%',
+    },
+    {
+      'icon': 'trending_up',
+      'title': 'Accelerate gradually from stops',
+      'description':
+          'Smooth acceleration from traffic lights reduces fuel consumption significantly compared to aggressive starts.',
+      'saving': 'Save up to 8%',
+    },
+    {
+      'icon': 'block',
+      'title': 'Avoid long idling periods',
+      'description':
+          'An idling engine consumes 0.5–0.8L per hour. Turn off your engine if stationary for more than 2 minutes.',
+      'saving': 'Save up to 5%',
+    },
+  ];
+
+  static const int overallEfficiencyScore = 74;
+  static const String efficiencyGrade = 'B+';
+  static const String efficiencyFeedback =
+      'Good driving habits overall. Focus on smoother braking to reach A grade.';
+
+  // ---------------------------------------------------------------------
   // Weekly fuel prices (last 12 weeks)
   // ---------------------------------------------------------------------
   static final List<FuelPrice> fuelPrices = _buildFuelPrices();
@@ -538,57 +570,29 @@ abstract class MockData {
   // ---------------------------------------------------------------------
   static const List<Map<String, String>> aiInsights = [
     {
-      'id': 'ai1',
+      'id': 'insight_1',
       'category': 'spending',
-      'summary': 'You spent RM 284 this month — 12% more than last month.',
+      'icon': 'account_balance_wallet',
+      'summary': 'You spent RM 284 this month — 12.7% more than last month.',
       'detail':
-          'Fuel spending increased due to more frequent commutes to the office this week. Try planning your trips so you can combine several errands into one journey to save RM20-30 a month.',
+          'Most of the increase came from an extra fill-up and slightly lower fuel economy this month. Your weekend highway trips on 7 and 14 June contributed significantly. Consolidating errands into fewer trips could save you RM 20 to 30 next month.',
     },
     {
-      'id': 'ai2',
+      'id': 'insight_2',
       'category': 'refuel',
-      'summary': 'Your Myvi tank is expected to need refuelling in 2-3 days.',
+      'icon': 'local_gas_station',
+      'summary': 'RON97 has risen 3 weeks in a row. Fill up before Sunday.',
       'detail':
-          'Based on your driving pattern, you usually refuel every 18-20 days. Consider refuelling at Petronas Bangsar, which has the best price within a 5km radius.',
+          'Historical data shows that 3 consecutive weekly increases are often followed by a larger revision. With 78% confidence, prices are expected to rise this Sunday. Filling your Myvi now at RM 2.05 per litre saves an estimated RM 3 to 5 on a full tank.',
     },
     {
-      'id': 'ai3',
+      'id': 'insight_3',
       'category': 'driving',
+      'icon': 'speed',
       'summary':
-          'Your driving score this week: 78/100 — a slight drop from 82.',
+          'Your braking score is 68 out of 100. Small changes, big savings.',
       'detail':
-          'Several trips showed hard braking, especially during peak hours. Try keeping a safe distance and brake gradually to save fuel and tyres.',
-    },
-    {
-      'id': 'ai4',
-      'category': 'carbon',
-      'summary':
-          'Your CO₂ this month: 68kg, equivalent to 3.1 trees to offset.',
-      'detail':
-          'If you cut 5 short trips a week by walking or cycling instead, you could reduce your carbon footprint by 8kg a month.',
-    },
-    {
-      'id': 'ai5',
-      'category': 'economy',
-      'summary':
-          "Your Myvi's average economy: 12.4 km/L — below the rated 16.9 km/L.",
-      'detail':
-          'This gap is common for city driving with frequent stop-start traffic. Try reducing idle time and using cruise control on highways to get closer to the rated consumption.',
-    },
-    {
-      'id': 'ai6',
-      'category': 'tip',
-      'summary':
-          'Tip: Underinflated tyres can increase fuel consumption by 3%.',
-      'detail':
-          "Check your Myvi's tyre pressure at least once a month. The optimal pressure for a Myvi 1.5 AV is around 33 psi for all wheels.",
-    },
-    {
-      'id': 'ai7',
-      'category': 'spending',
-      'summary': "Your Mercedes' cost per km is 2.6x higher than the Myvi.",
-      'detail':
-          'The C200 uses RON97 with a rated consumption of 11.5L/100km compared to the Myvi at 5.9L/100km. Use the Myvi for daily trips and save the Mercedes for weekends.',
+          'Smoother braking behaviour could improve your fuel economy by up to 8%, pushing your average from 12.4 km/L to approximately 13.4 km/L. Try releasing the accelerator earlier when approaching junctions instead of braking late.',
     },
   ];
 
@@ -598,26 +602,29 @@ abstract class MockData {
   static const List<String> suggestedPrompts = [
     'Why did my fuel spending increase?',
     'When should I refuel?',
-    'What is my CO₂ footprint this month?',
-    'Tips to save fuel on the highway?',
+    'What is my CO2 footprint this month?',
+    'Give me tips to save fuel on the highway',
     'Compare my two vehicles this month',
     'Give me a summary of this week',
   ];
 
   static const Map<String, String> aiResponses = {
     'Why did my fuel spending increase?':
-        "Your fuel spending rose by RM 31 (12%) this month compared to last month, mainly because your Perodua Myvi was refuelled 10 times versus 8 times last month. This lines up with an increase in daily driving distance — likely due to more frequent trips to the office or out of town. RON95 stayed at RM2.05/L, so the increase isn't due to price. Check if any trips can be combined to save a little.",
+        'Looking at your fuel data, you spent RM 284 this month compared to RM 252 last month — that is a 12.7% increase. The main driver appears to be 4 fill-ups this month versus 3 last month, with most of the extra usage coming from weekend trips. Your average fuel economy also dipped slightly to 12.4 km/L from 13.1 km/L last month, which suggests more city driving or heavier traffic. Consider consolidating short trips and checking your tyre pressure to recover some of that efficiency.',
     'When should I refuel?':
-        "Based on your average driving distance and the Myvi's 35L tank, you usually refuel every 18-20 days. Your tank is currently estimated at around 30%, so it's best to refuel within the next 2-3 days before the low fuel warning appears. Petronas Bangsar and Shell Cheras are the stations you use most often and have competitive prices. Avoid refuelling when the tank is completely empty to protect the fuel pump.",
-    'What is my CO₂ footprint this month?':
-        'This month you produced about 68kg of CO₂ from fuel used by the Myvi and Mercedes. This is equivalent to needing 3.1 mature trees to fully offset over a year. Compared to last month, this is a small decrease of 4kg — your eco-driving efforts are paying off! Keep cutting down on unnecessary short trips to further reduce your carbon footprint.',
-    'Tips to save fuel on the highway?':
-        'On the highway, maintain a steady speed between 90-100 km/h as this is the most efficient range for most cars, including the Myvi. Use cruise control if available to avoid the speeding up and slowing down that wastes fuel. Keep windows closed at high speed since aerodynamics matter more than air-con on the highway. Regular servicing and correct tyre pressure can also improve economy by up to 5%.',
+        'Based on the current price trend, RON97 has increased for 3 consecutive weeks and is now at RM 3.25 per litre. There is a 78% probability of a further revision this Sunday. I recommend filling up your Perodua Myvi before Saturday midnight to lock in the current price. At your tank capacity of 35 litres, a full tank now would cost approximately RM 71.75 — potentially saving you RM 3 to 5 if prices rise next week.',
+    'What is my CO2 footprint this month?':
+        'Your Perodua Myvi has emitted approximately 68.4 kg of CO₂ this month based on 29.6 litres of RON95 consumed at 2.31 kg per litre. To put that in perspective, you would need 3.1 trees growing for a full year to offset this month\'s emissions. Compared to last month\'s 74.2 kg, you have actually improved by 7.8%. Maintaining your current driving efficiency and avoiding unnecessary idling could bring this below 60 kg next month.',
+    'Give me tips to save fuel on the highway':
+        'For your Perodua Myvi 1.5 AV, the sweet spot for highway efficiency is between 80 and 90 km/h. At 110 km/h, fuel consumption increases by roughly 15 to 20% compared to 90 km/h. Based on your recent trip data, your average highway speed appears to be around 98 km/h. Dropping to 90 km/h could improve your economy from 12.4 km/L to approximately 14.2 km/L, saving you around RM 18 to 22 per month on highway trips alone. Also consider using cruise control on the North-South Expressway to maintain consistent speed.',
     'Compare my two vehicles this month':
-        'Your Perodua Myvi recorded an economy of 12.4 km/L at a cost of around RM0.17 per km, while the Mercedes-Benz C200 cost around RM0.45 per km due to its 2.0L engine and RON97 fuel. The Myvi covered nearly all of your driving distance this month, while the C200 was only used for weekend trips. If your main goal is saving cost, keep using the Myvi for daily driving and save the C200 for special trips.',
+        'Comparing your Perodua Myvi 1.5 AV and Mercedes-Benz C200 this month: the Myvi recorded 4 fill-ups totalling RM 284 at an average of 12.4 km/L, which is actually above its rated 12.0 km/L — great performance. The C200 recorded 2 fill-ups totalling RM 198 using RON97 at an average of 8.7 km/L, slightly below its 8.7 km/L rating. For daily commuting in Johor Bahru, the Myvi is clearly the more economical choice at RM 0.18 per km versus the C200 at RM 0.41 per km.',
     'Give me a summary of this week':
-        'This week you drove about 210km with 3 refuels totalling RM 184. Your average driving score was 78/100, with a few hard braking events that could be improved. The RON97 price rose slightly to RM3.10, but RON95 (which you use) stayed stable at RM2.05. Overall, an average week — try reducing idle time next week.',
+        'Here is your BudiBuddy summary for this week: You made 1 fill-up at Shell Kangkar Pulai, adding 38.5 litres of RON95 for RM 78.93. Your fuel economy this week was 12.6 km/L, slightly above your monthly average. You covered an estimated 485 km and emitted approximately 88.9 kg of CO₂. RON95 remains at RM 2.05 this week with no revision expected until Sunday. Your driving efficiency score this week was 78 out of 100 — solid performance with room to improve on braking smoothness.',
   };
+
+  static const String aiFallbackResponse =
+      'I have analysed your fuel data and driving patterns. Based on your Perodua Myvi records, you are performing well overall with an average economy of 12.4 km/L. For more specific insights, try one of the suggested questions below or ask me about your spending, refuel timing, CO₂ footprint, or driving tips.';
 
   // ---------------------------------------------------------------------
   // Chart data
@@ -638,5 +645,43 @@ abstract class MockData {
     {'month': 'Apr', 'co2': 64.0},
     {'month': 'May', 'co2': 71.0},
     {'month': 'Jun', 'co2': 68.0},
+  ];
+
+  // ---------------------------------------------------------------------
+  // Carbon footprint
+  // ---------------------------------------------------------------------
+  static const double co2PerLitrePetrol = 2.31;
+  static const double co2PerLitreDiesel = 2.68;
+  static const double co2PerTreePerYear = 21.77;
+
+  static const List<Map<String, String>> carbonReductionTips = [
+    {
+      'icon': 'speed',
+      'title': 'Drive at optimal highway speeds',
+      'description':
+          'Maintaining 90 km/h instead of 110 km/h reduces fuel burn and CO2 emissions by up to 15%.',
+      'saving': 'Save 15% CO2',
+    },
+    {
+      'icon': 'ac_unit',
+      'title': 'Use air conditioning wisely',
+      'description':
+          'Air conditioning increases fuel consumption by 5 to 20%. Use it at lower settings or switch to fan mode when possible.',
+      'saving': 'Save up to 20%',
+    },
+    {
+      'icon': 'tire_repair',
+      'title': 'Keep tyres properly inflated',
+      'description':
+          'Under-inflated tyres increase rolling resistance and fuel usage. Check tyre pressure monthly.',
+      'saving': 'Save up to 3%',
+    },
+    {
+      'icon': 'route',
+      'title': 'Plan your routes to avoid traffic',
+      'description':
+          'Stop-and-go traffic significantly increases fuel consumption and emissions. Use navigation apps during peak hours.',
+      'saving': 'Save up to 10%',
+    },
   ];
 }

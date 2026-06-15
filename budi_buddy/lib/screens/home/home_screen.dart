@@ -9,6 +9,7 @@ import '../../core/mock_data.dart';
 import '../../core/router.dart';
 import '../../models/vehicle.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/carbon_provider.dart';
 import '../../providers/fuel_provider.dart';
 import '../../providers/vehicle_provider.dart';
 
@@ -28,10 +29,18 @@ class HomeScreen extends StatelessWidget {
     final monthStart = DateTime(DateTime.now().year, DateTime.now().month, 1);
     final monthlySpend = activeVehicle == null
         ? 0.0
-        : fuelProvider.totalSpendingForVehicle(activeVehicle.id, from: monthStart);
+        : fuelProvider.totalSpendingForVehicle(
+            activeVehicle.id,
+            from: monthStart,
+          );
     final avgEconomy = activeVehicle == null
         ? 0.0
         : fuelProvider.averageFuelEconomyForVehicle(activeVehicle.id);
+
+    final fuelEntries = fuelProvider.entriesForVehicle(activeVehicle?.id ?? '');
+    final co2ThisMonth = context.read<CarbonProvider>().co2ThisMonth(
+      fuelEntries,
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -116,7 +125,8 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (activeVehicle != null) _buildActiveVehicleCard(context, activeVehicle),
+            if (activeVehicle != null)
+              _buildActiveVehicleCard(context, activeVehicle),
             _SectionLabel(text: 'Summary this month'),
             const SizedBox(height: kSpaceSM),
             Row(
@@ -141,16 +151,16 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Row(
-              children: const [
+              children: [
                 Expanded(
                   child: _StatCard(
                     label: 'CO₂ This Month',
-                    value: '68 kg',
-                    subtitle: '2.31 kg/L petrol',
+                    value: '${co2ThisMonth.toStringAsFixed(1)} kg',
+                    subtitle: '2.31 kg per litre petrol',
                   ),
                 ),
-                SizedBox(width: 12),
-                Expanded(
+                const SizedBox(width: 12),
+                const Expanded(
                   child: _StatCard(
                     label: 'Cost per KM',
                     value: 'RM 0.18',
@@ -204,7 +214,8 @@ class HomeScreen extends StatelessWidget {
                       Expanded(
                         child: _PricePill(
                           label: 'Diesel',
-                          price: 'RM ${currentPrices.diesel.toStringAsFixed(2)}',
+                          price:
+                              'RM ${currentPrices.diesel.toStringAsFixed(2)}',
                           backgroundColor: kNeutralBg,
                           priceColor: kTextPrimary,
                         ),
@@ -265,6 +276,87 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(height: kSpaceLG),
+            _SectionLabel(text: 'Quick Actions'),
+            const SizedBox(height: kSpaceSM),
+            Row(
+              children: [
+                Expanded(
+                  child: _quickActionCard(
+                    Icons.directions_car_outlined,
+                    'Driving\nAnalysis',
+                    () => context.push(RoutePaths.driving),
+                    kSurfaceGreen,
+                    kPrimaryGreen,
+                  ),
+                ),
+                const SizedBox(width: kSpaceSM),
+                Expanded(
+                  child: _quickActionCard(
+                    Icons.show_chart,
+                    'Fuel\nPrices',
+                    () => context.push(RoutePaths.price),
+                    kAmberTint,
+                    kDeepAmber,
+                  ),
+                ),
+                const SizedBox(width: kSpaceSM),
+                Expanded(
+                  child: _quickActionCard(
+                    Icons.eco_outlined,
+                    'CO₂\nTracker',
+                    () => context.push(RoutePaths.carbon),
+                    kSurfaceGreen,
+                    kAccentGreen,
+                  ),
+                ),
+                const SizedBox(width: kSpaceSM),
+                Expanded(
+                  child: _quickActionCard(
+                    Icons.smart_toy_outlined,
+                    'AI\nInsights',
+                    () => context.go(RoutePaths.ai),
+                    kSurfaceGreen,
+                    kPrimaryGreen,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _quickActionCard(
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+    Color bgColor,
+    Color iconColor,
+  ) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(kRadiusLG),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(icon, color: iconColor, size: 22),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                fontSize: kFontXS,
+                fontWeight: FontWeight.w600,
+                color: iconColor,
+              ),
+            ),
           ],
         ),
       ),
@@ -299,7 +391,10 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: kSpaceSM, vertical: 2),
+            padding: const EdgeInsets.symmetric(
+              horizontal: kSpaceSM,
+              vertical: 2,
+            ),
             decoration: BoxDecoration(
               color: kPrimaryAmber,
               borderRadius: BorderRadius.circular(kRadiusSM),
@@ -351,12 +446,19 @@ class HomeScreen extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.local_gas_station_outlined, color: kTextMuted, size: 24),
+              const Icon(
+                Icons.local_gas_station_outlined,
+                color: kTextMuted,
+                size: 24,
+              ),
               const SizedBox(width: kSpaceMD),
               Expanded(
                 child: Text(
                   'No fill-ups logged yet. Tap to add your first.',
-                  style: GoogleFonts.poppins(fontSize: kFontSM, color: kTextSecondary),
+                  style: GoogleFonts.poppins(
+                    fontSize: kFontSM,
+                    color: kTextSecondary,
+                  ),
                 ),
               ),
               const Icon(Icons.arrow_forward_ios, color: kTextMuted, size: 14),
@@ -366,7 +468,10 @@ class HomeScreen extends StatelessWidget {
       );
     }
 
-    final previous = fuelProvider.previousEntryForVehicle(activeVehicle.id, latest.id);
+    final previous = fuelProvider.previousEntryForVehicle(
+      activeVehicle.id,
+      latest.id,
+    );
     final economy = fuelProvider.computeFuelEconomy(latest, previous);
 
     return GestureDetector(
@@ -398,7 +503,10 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       DateFormat('d MMM yyyy').format(latest.date),
-                      style: GoogleFonts.poppins(fontSize: 11, color: kTextMuted),
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: kTextMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -416,7 +524,10 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${latest.litres.toStringAsFixed(1)} L',
-                      style: GoogleFonts.poppins(fontSize: 11, color: kTextSecondary),
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: kTextSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -426,7 +537,10 @@ class HomeScreen extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: kSurfaceGreen,
                     borderRadius: BorderRadius.circular(20),
@@ -443,7 +557,10 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 if (economy > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: kAmberTint,
                       borderRadius: BorderRadius.circular(20),
@@ -460,7 +577,10 @@ class HomeScreen extends StatelessWidget {
                 const Spacer(),
                 Text(
                   'View details >',
-                  style: GoogleFonts.poppins(fontSize: 11, color: kPrimaryGreen),
+                  style: GoogleFonts.poppins(
+                    fontSize: 11,
+                    color: kPrimaryGreen,
+                  ),
                 ),
               ],
             ),

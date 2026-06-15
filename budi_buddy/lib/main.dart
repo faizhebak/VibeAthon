@@ -3,7 +3,10 @@ import 'package:provider/provider.dart';
 
 import 'core/router.dart';
 import 'core/theme.dart';
+import 'providers/ai_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/carbon_provider.dart';
+import 'providers/driving_provider.dart';
 import 'providers/fuel_provider.dart';
 import 'providers/vehicle_provider.dart';
 
@@ -14,6 +17,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => VehicleProvider()),
         ChangeNotifierProvider(create: (_) => FuelProvider()),
+        ChangeNotifierProvider(create: (_) => DrivingProvider()),
+        ChangeNotifierProvider(create: (_) => CarbonProvider()),
+        ChangeNotifierProvider(create: (_) => AIProvider()),
       ],
       child: const BudiBuddyApp(),
     ),

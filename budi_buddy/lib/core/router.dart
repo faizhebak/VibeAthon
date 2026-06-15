@@ -1,12 +1,18 @@
 import 'package:go_router/go_router.dart';
 
 import '../providers/auth_provider.dart';
+import '../screens/ai/ai_screen.dart';
+import '../screens/ai/insight_detail_screen.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/profile_screen.dart';
 import '../screens/auth/profile_setup_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/carbon/carbon_detail_screen.dart';
+import '../screens/carbon/carbon_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/dashboard/reports_screen.dart';
+import '../screens/driving/driving_screen.dart';
+import '../screens/driving/trip_detail_screen.dart';
 import '../screens/fuel/add_fuel_entry_screen.dart';
 import '../screens/fuel/fuel_entry_detail_screen.dart';
 import '../screens/fuel/fuel_log_screen.dart';
@@ -42,6 +48,8 @@ class RoutePaths {
   static const String driving = '/driving';
   static const String tripDetail = '/driving/:id';
   static const String carbon = '/carbon';
+  static const String carbonDetail = '/carbon/detail';
+  static const String insightDetail = '/ai/insight';
   static const String notifications = '/notifications';
   static const String profile = '/profile';
 }
@@ -132,23 +140,11 @@ abstract class AppRouter {
             ),
             GoRoute(
               path: RoutePaths.ai,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'AI BudiBuddy'),
+              builder: (context, state) => const AIScreen(),
             ),
             GoRoute(
               path: RoutePaths.driving,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Driving'),
-            ),
-            GoRoute(
-              path: RoutePaths.tripDetail,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Trip Detail'),
-            ),
-            GoRoute(
-              path: RoutePaths.carbon,
-              builder: (context, state) =>
-                  const PlaceholderScreen(title: 'Carbon'),
+              builder: (context, state) => const DrivingScreen(),
             ),
             GoRoute(
               path: RoutePaths.notifications,
@@ -172,6 +168,30 @@ abstract class AppRouter {
         GoRoute(
           path: RoutePaths.refuelAdvisor,
           builder: (context, state) => const RefuelAdvisorScreen(),
+        ),
+        GoRoute(
+          path: RoutePaths.tripDetail,
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return TripDetailScreen(tripId: id);
+          },
+        ),
+        GoRoute(
+          path: RoutePaths.carbon,
+          builder: (context, state) => const CarbonScreen(),
+          routes: [
+            GoRoute(
+              path: 'detail',
+              builder: (context, state) => const CarbonDetailScreen(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: '${RoutePaths.insightDetail}/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return InsightDetailScreen(insightId: id);
+          },
         ),
       ],
     );
